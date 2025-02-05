@@ -25,26 +25,24 @@ import sys
 import subprocess
 import time
 
-RAYLIB_PLATFORM = os.getenv("RAYLIB_PLATFORM", "Desktop")
+RAYLIB_PLATFORM = os.getenv("RAYLIB_PLATFORM", "")
+RAYLIB_INCLUDE_PATH = os.getenv("RAYLIB_INCLUDE_PATH", "")
+RAYLIB_LIB_PATH = os.getenv("RAYLIB_LIB_PATH", "")
 
 def check_raylib_installed():
-    return subprocess.run(['pkg-config', '--exists', 'raylib'], text=True, stdout=subprocess.PIPE).returncode == 0
+    return os.path.isfile(os.path.join(RAYLIB_LIB_PATH, 'libraylib.a'))
 
 def check_SDL_installed():
     return subprocess.run(['pkg-config', '--exists', 'sdl2'], text=True, stdout=subprocess.PIPE).returncode == 0
 
 def get_the_include_path():
-    return subprocess.run(['pkg-config', '--variable=includedir', 'raylib'], text=True,
-                          stdout=subprocess.PIPE).stdout.strip()
-
+    return RAYLIB_INCLUDE_PATH
 
 def get_the_lib_path():
-    return subprocess.run(['pkg-config', '--variable=libdir', 'raylib'], text=True,
-                          stdout=subprocess.PIPE).stdout.strip()
+    return RAYLIB_LIB_PATH
 
 def get_lib_flags():
-    return subprocess.run(['pkg-config', '--libs', 'raylib'], text=True,
-                          stdout=subprocess.PIPE).stdout.strip().split()
+    return [f'-L{RAYLIB_LIB_PATH}', '-lraylib']
 
 def pre_process_header(filename, remove_function_bodies=False):
     print("Pre-processing " + filename)
@@ -180,6 +178,9 @@ def build_unix():
             extra_link_args += ['-lX11','-lSDL2']
         elif RAYLIB_PLATFORM=="DRM":
             extra_link_args += ['-lEGL', '-lgbm']
+        elif RAYLIB_PLATFORM=="PLATFORM_COMMA":
+            extra_link_args.remove('-lGL')
+            extra_link_args += ['-lGLESv2', '-lEGL', '-lwayland-client', '-lwayland-egl']
         else:
             extra_link_args += ['-lX11']
         extra_compile_args = ["-Wno-incompatible-pointer-types", "-D_CFFI_NO_LIMITED_API"]
