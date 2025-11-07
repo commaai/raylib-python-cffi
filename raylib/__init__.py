@@ -25,6 +25,3 @@ from raylib.colors import *
 from raylib.defines import *
 import cffi
 from .version import  __version__
-
-print("RAYLIB STATIC "+__version__+" LOADED", file=sys.stderr)
-
