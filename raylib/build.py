@@ -181,6 +181,8 @@ def build_unix():
         elif RAYLIB_PLATFORM=="PLATFORM_COMMA":
             extra_link_args.remove('-lGL')
             extra_link_args += ['-lGLESv2', '-lEGL', '-lgbm', '-ldrm']
+        elif RAYLIB_PLATFORM=="PLATFORM_OFFSCREEN":
+            extra_link_args += ['-lEGL']
         else:
             extra_link_args += ['-lX11']
         extra_compile_args = ["-Wno-incompatible-pointer-types", "-D_CFFI_NO_LIMITED_API"]
